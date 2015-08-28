@@ -1,10 +1,8 @@
-Bonjour, 
+Article: {product}
 
 Le stock restant est maintenant inférieur au minimum de {last_qty}.
 
 stock restant : {qty}
 
-Nous vous conseillons de vous rendre sur la page produit du panneau
-d'administration afin de renouveler vos stocks. 		 
+{shop_url}
 
-{shop_name} [{shop_url}]
