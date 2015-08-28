@@ -1,6 +1,3 @@
-
-[{shop_url}] 
-
 Bonjour, 
 
 Le stock a été réapprovisionné.
@@ -11,6 +8,4 @@ suivant: {product} [{product_link}]
 Vous pouvez donc de nouveau commander ce produit depuis notre
 catalogue en ligne. 		 
 
-{shop_name} [{shop_url}] réalisé avec
-PrestaShop(tm) [http://www.prestashop.com/] 
-
+{shop_name} [{shop_url}]
