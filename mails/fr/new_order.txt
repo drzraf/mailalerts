@@ -6,7 +6,7 @@ Date     : {date}
 Paiement : {payment}
 
 Référence  Produit               Prix unitaire  Quantité        Prix total
-{items}
+{items_txt}
 
 
 Produits:       {total_products}

@@ -275,6 +275,7 @@ class MailAlerts extends Module
 			$message = $this->l('No message');
 
 		$items_table = '';
+		$items_table_txt = '';
 
 		$products = $params['order']->getProducts();
 		$customized_datas = Product::getAllCustomizedDatas((int)$params['cart']->id);
@@ -304,21 +305,41 @@ class MailAlerts extends Module
 			}
 
 			$url = $context->link->getProductLink($product['product_id']);
-			$items_table .=
-				'<tr style="background-color:'.($key % 2 ? '#DDE2E6' : '#EBECEE').';">
-					<td style="padding:0.6em 0.4em;">'.$product['product_reference'].'</td>
-					<td style="padding:0.6em 0.4em;">
-						<strong><a href="'.$url.'">'.$product['product_name'].'</a>'
-							.(isset($product['attributes_small']) ? ' '.$product['attributes_small'] : '')
-							.(!empty($customization_text) ? '<br />'.$customization_text : '')
-						.'</strong>
-					</td>
-					<td style="padding:0.6em 0.4em; text-align:right;">'.Tools::displayPrice($unit_price, $currency, false).'</td>
-					<td style="padding:0.6em 0.4em; text-align:center;">'.(int)$product['product_quantity'].'</td>
-					<td style="padding:0.6em 0.4em; text-align:right;">'
-						.Tools::displayPrice(($unit_price * $product['product_quantity']), $currency, false)
-					.'</td>
-				</tr>';
+			$is_important = (strpos($product['product_name'], "Adhésion") === 0 || strpos($product['product_name'], "Don") === 0) ? 'important' : '';
+			$items_table .= sprintf(<<<EOF
+<tr style="background-color:%s;">
+  <td style="padding:0.6em 0.4em;">%s</td>
+  <td style="padding:0.6em 0.4em;" class="name %s">
+    <strong><a href="%s">%s</a>%s%s</strong>
+  </td>
+  <td style="padding:0.6em 0.4em; text-align:right;">%s</td>
+  <td style="padding:0.6em 0.4em; text-align:center;">%d</td>
+  <td style="padding:0.6em 0.4em; text-align:right;">%s</td>
+</tr>
+
+EOF
+                              ,
+                              $key % 2 ? '#DDE2E6' : '#EBECEE',
+                              $product['product_reference'],
+                              $is_important,
+                              $url,
+                              $product['product_name'],
+                              isset($product['attributes_small']) ? ' ' . $product['attributes_small'] : '',
+                              !empty($customization_text) ? '<br />' . $customization_text : '',
+                              Tools::displayPrice($unit_price, $currency, false),
+                              $product['product_quantity'],
+                              Tools::displayPrice(($unit_price * $product['product_quantity']), $currency, false));
+
+			$items_table_txt .= sprintf("%s\t%s (%s%s) %s * %d = %s\n",
+                                  $product['product_reference'],
+                                  $product['product_name'],
+
+                                  isset($product['attributes_small']) ? ' ' . $product['attributes_small'] : '',
+                                  !empty($customization_text) ? " (" . $customization_text . ")" : '',
+
+                                  Tools::displayPrice($unit_price, $currency, false),
+                                  $product['product_quantity'],
+                                  Tools::displayPrice(($unit_price * $product['product_quantity']), $currency, false));
 		}
 		foreach ($params['order']->getCartRules() as $discount)
 		{
@@ -327,6 +348,7 @@ class MailAlerts extends Module
 						<td colspan="4" style="padding:0.6em 0.4em; text-align:right;">'.$this->l('Voucher code:').' '.$discount['name'].'</td>
 					<td style="padding:0.6em 0.4em; text-align:right;">-'.Tools::displayPrice($discount['value'], $currency, false).'</td>
 			</tr>';
+			$items_table_txt .= sprintf("%s %s\t-%s", $this->l('Voucher code:'), $discount['name'], Tools::displayPrice($discount['value'], $currency, false));
 		}
 		if ($delivery->id_state)
 			$delivery_state = new State((int)$delivery->id_state);
@@ -388,6 +410,7 @@ class MailAlerts extends Module
 			'{carrier}' => (($carrier->name == '0') ? $configuration['PS_SHOP_NAME'] : $carrier->name),
 			'{payment}' => Tools::substr($order->payment, 0, 32),
 			'{items}' => $items_table,
+			'{items_txt}' => $items_table_txt,
 			'{total_paid}' => Tools::displayPrice($order->total_paid, $currency),
 			'{total_products}' => Tools::displayPrice($total_products, $currency),
 			'{total_discounts}' => Tools::displayPrice($order->total_discounts, $currency),
@@ -727,15 +750,25 @@ class MailAlerts extends Module
 		foreach ($order_return_products as $key => $product)
 		{
 			$url = $context->link->getProductLink($product['product_id']);
-			$items_table .=
-				'<tr style="background-color:'.($key % 2 ? '#DDE2E6' : '#EBECEE').';">
-					<td style="padding:0.6em 0.4em;">'.$product['product_reference'].'</td>
-					<td style="padding:0.6em 0.4em;">
-						<strong><a href="'.$url.'">'.$product['product_name'].'</a>
-					</strong>
-					</td>
-					<td style="padding:0.6em 0.4em; text-align:center;">'.(int)$product['product_quantity'].'</td>
-				</tr>';
+			$items_table .= sprintf(<<<EOF
+<tr style="background-color:%s;">
+  <td style="padding:0.6em 0.4em;">%s</td>
+  <td style="padding:0.6em 0.4em;" class="name %s">
+    <strong><a href="%s">%s</a>
+    </strong>
+  </td>
+  <td style="padding:0.6em 0.4em; text-align:center;">%d</td>
+</tr>
+
+EOF
+                              ,
+                              $key % 2 ? '#DDE2E6' : '#EBECEE',
+                              $product['product_reference'],
+                              $is_important,
+                              $url,
+                              $product['product_name'],
+                              $product['product_quantity']);
+
 		}
 
 		$template_vars = array(
