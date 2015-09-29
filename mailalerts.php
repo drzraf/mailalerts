@@ -305,11 +305,16 @@ class MailAlerts extends Module
 			}
 
 			$url = $context->link->getProductLink($product['product_id']);
-			$is_important = (strpos($product['product_name'], "Adhésion") === 0 || strpos($product['product_name'], "Don") === 0) ? 'important' : '';
+			if(strpos($product['product_name'], "Adhésion") === 0 || strpos($product['product_name'], "Don") === 0) {
+				$is_important = 'important';
+				$ostyle = 'background-color: lightgreen;';
+			} else {
+				$is_important = $ostyle = '';
+			}
 			$items_table .= sprintf(<<<EOF
 <tr style="background-color:%s;">
   <td style="padding:0.6em 0.4em;">%s</td>
-  <td style="padding:0.6em 0.4em;" class="name %s">
+  <td style="padding:0.6em 0.4em;%s" class="name %s">
     <strong><a href="%s">%s</a>%s%s</strong>
   </td>
   <td style="padding:0.6em 0.4em; text-align:right;">%s</td>
@@ -321,7 +326,7 @@ EOF
                               ,
                               $key % 2 ? '#DDE2E6' : '#EBECEE',
                               $product['product_reference'],
-                              $is_important,
+                              $ostyle, $is_important,
                               $url,
                               $product['product_name'],
                               isset($product['attributes_small']) ? ' ' . $product['attributes_small'] : '',
@@ -753,7 +758,7 @@ EOF
 			$items_table .= sprintf(<<<EOF
 <tr style="background-color:%s;">
   <td style="padding:0.6em 0.4em;">%s</td>
-  <td style="padding:0.6em 0.4em;" class="name %s">
+  <td style="padding:0.6em 0.4em;" class="name">
     <strong><a href="%s">%s</a>
     </strong>
   </td>
@@ -764,7 +769,6 @@ EOF
                               ,
                               $key % 2 ? '#DDE2E6' : '#EBECEE',
                               $product['product_reference'],
-                              $is_important,
                               $url,
                               $product['product_name'],
                               $product['product_quantity']);
