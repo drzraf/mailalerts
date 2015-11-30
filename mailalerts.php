@@ -382,6 +382,7 @@ class MailAlerts extends Module
 			'{invoice_phone}' => $invoice->phone ? $invoice->phone : $invoice->phone_mobile,
 			'{invoice_other}' => $invoice->other,
 			'{order_name}' => $order->reference,
+			'{order_status_color}' => $order_state->color,
 			'{order_status}' => $order_state->name,
 			'{shop_name}' => $configuration['PS_SHOP_NAME'],
 			'{date}' => $order_date_text,
