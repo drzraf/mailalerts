@@ -510,7 +510,7 @@ EOF
 				'id_product_attribute' => $id_product_attribute
 			)
 		);
-
+        if (!$params['product']->on_sale && $params['product']->visibility == 'none') return '';
 		return $this->display(__FILE__, 'product.tpl');
 	}
 
